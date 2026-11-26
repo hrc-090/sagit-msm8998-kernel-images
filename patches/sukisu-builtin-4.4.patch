@@ -1,0 +1,72 @@
+diff --git a/kernel/extension/kpm/kpm.c b/kernel/extension/kpm/kpm.c
+index 5735c2d3..b7debdf4 100644
+--- a/kernel/extension/kpm/kpm.c
++++ b/kernel/extension/kpm/kpm.c
+@@ -179,7 +179,7 @@ int do_kpm(void __user *arg)
+     int result;
+     /* Called only through the manager_or_root-authorized extension ioctl. */
+     if (copy_from_user(&cmd, arg, sizeof(cmd))) return -EFAULT;
+-    if (!access_ok(u64_to_user_ptr(cmd.result_code), sizeof(result))) return -EFAULT;
++    if (!ksu_access_ok(u64_to_user_ptr(cmd.result_code), sizeof(result))) return -EFAULT;
+     result = handle_kpm(&cmd);
+     return copy_to_user(u64_to_user_ptr(cmd.result_code), &result, sizeof(result)) ? -EFAULT : 0;
+ }
+diff --git a/kernel/extension/kpm/super_access.c b/kernel/extension/kpm/super_access.c
+index 9e3f8c07..8281bd13 100644
+--- a/kernel/extension/kpm/super_access.c
++++ b/kernel/extension/kpm/super_access.c
+@@ -166,7 +166,7 @@ DEFINE_MEMBER(task_struct, thread_info)
+ #ifdef CONFIG_CGROUPS
+ DEFINE_MEMBER(task_struct, cgroups)
+ #endif
+-#ifdef CONFIG_SECURITY
++#if defined(CONFIG_SECURITY) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+ DEFINE_MEMBER(task_struct, security)
+ #endif
+ DEFINE_MEMBER(task_struct, thread)
+diff --git a/kernel/infra/symbol_resolver.c b/kernel/infra/symbol_resolver.c
+index fe65337a..86e00ac2 100644
+--- a/kernel/infra/symbol_resolver.c
++++ b/kernel/infra/symbol_resolver.c
+@@ -2,7 +2,11 @@
+ #include <linux/kallsyms.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+ #include <linux/sched/signal.h>
++#else
++#include <linux/sched.h>
++#endif
+ #include <linux/slab.h>
+ #include <linux/sort.h>
+ #include <linux/string.h>
+diff --git a/kernel/kernel_compat.h b/kernel/kernel_compat.h
+index 8493a7ac..faf1fbac 100644
+--- a/kernel/kernel_compat.h
++++ b/kernel/kernel_compat.h
+@@ -54,6 +54,11 @@ struct file *ksu_filp_open_compat(const char *filename, int flags, umode_t mode)
+ #define ksu_access_ok(addr, size) access_ok(VERIFY_READ, addr, size)
+ #endif
+ 
++/* 4.4 compat: kvcalloc only exists since 4.18 */
++#ifndef kvcalloc
++#define kvcalloc(n, size, flags) kvmalloc((n) * (size), (flags) | __GFP_ZERO)
++#endif
++
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0) // caller is reponsible for sanity!
+ static inline void ksu_zeroed_strncpy(char *dest, const char *src, size_t count)
+ {
+diff --git a/kernel/kernel_includes.h b/kernel/kernel_includes.h
+index 422fde3d..a5168fa1 100644
+--- a/kernel/kernel_includes.h
++++ b/kernel/kernel_includes.h
+@@ -73,7 +73,9 @@
+ #include <linux/vmalloc.h>
+ #include <linux/tty.h>
+ #include <linux/kref.h>
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+ #include <linux/static_call.h>
++#endif
+ #include "arch.h"
+ #ifdef CONFIG_KSU_SUSFS
+ #include <linux/susfs.h>
