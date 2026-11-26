@@ -17,7 +17,7 @@
 |---|---|---|---|
 | SukiSU Nova `v3.0.0-r1`（builtin 内置） | `boot_sagit_231_ksu.img` | ✅ 已构建 | `com.sukisu.nova` |
 | BakaSU（manual hook） | `boot_sagit_231_bakasu.img` | ✅ 已构建 | BakaSU 管理器 |
-| KernelSU-Next（legacy 分支，manual hook） | — | 🚧 进行中 | KernelSU-Next 管理器 |
+| KernelSU-Next（legacy 分支，manual hook，v33327） | `boot_sagit_231_ksunext.img` | ✅ 已构建 | KernelSU-Next 管理器 |
 | KernelSU 官方（main） | — | ⏳ 待评估（新版架构对 4.4 兼容差） | KernelSU 管理器 |
 
 > 镜像均为 67,108,864 字节，ramdisk 与原厂逐字节一致，仅替换内核（Image.gz + 原厂 DTB）。
