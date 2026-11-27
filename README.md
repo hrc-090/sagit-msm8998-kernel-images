@@ -15,10 +15,15 @@
 
 | 变体 | 文件（Release 附件） | 状态 | 管理器 |
 |---|---|---|---|
-| SukiSU Nova `v3.0.0-r1`（builtin 内置） | `boot_sagit_231_ksu.img` | ✅ 已构建 | `com.sukisu.nova` |
-| BakaSU（manual hook） | `boot_sagit_231_bakasu.img` | ✅ 已构建 | BakaSU 管理器 |
-| KernelSU-Next（legacy 分支，manual hook，v33327） | `boot_sagit_231_ksunext.img` | ✅ 已构建 | KernelSU-Next 管理器 |
+| SukiSU Nova `v3.0.0-r1`（builtin 内置） | `boot_sagit_231_nova.img` | ✅ 已构建（v1.2，含 NFC 修复） | `com.sukisu.nova` |
+| BakaSU（manual hook） | `boot_sagit_231_bakasu.img` | ✅ 已构建（v1.2，含 NFC 修复） | BakaSU 管理器 |
+| ReSukiSU（manual hook） | `boot_sagit_231_resukisu.img` | ✅ 已构建（v1.2，含 NFC 修复） | BakaSU 系管理器 |
+| KernelSU-Next（legacy 分支，manual hook，v33327） | `boot_sagit_231_ksunext.img` | ✅ 已构建（v1.2，含 NFC 修复） | KernelSU-Next 管理器 |
 | KernelSU 官方（main） | — | ⏳ 待评估（新版架构对 4.4 兼容差） | KernelSU 管理器 |
+
+> SukiSU Nova 镜像即原 `boot_sagit_231_ksu.img`，内核内置管理器包名 `com.sukisu.nova`。
+> BakaSU 与 ReSukiSU 上游仓库当前 HEAD 相同（`cac1e79`），内核源码与 manager 包名（`org.bakasu.bakasu`）一致，两个镜像功能等价。
+> NFC 修复：`nq-nci` 在 probe 即上电并打开 BBCLK3 参考时钟，首次 I2C NACK 时自动补上电重试，不再依赖 HAL 先发 `NFC_SET_PWR`。
 
 > 镜像均为 67,108,864 字节，ramdisk 与原厂逐字节一致，仅替换内核（Image.gz + 原厂 DTB）。
 
@@ -26,7 +31,7 @@
 
 ```bash
 # 刷入（任选一个变体）
-fastboot flash boot boot_sagit_231_ksu.img
+fastboot flash boot boot_sagit_231_nova.img
 fastboot reboot
 
 # 回滚原厂
